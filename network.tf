@@ -56,3 +56,34 @@ resource "aws_internet_gateway" "this" {
     Name = "igw-${var.vpc_name}"
   }
 }
+
+# route table association for private subnets
+
+resource "aws_route_table_association" "private_subnet_association" {
+  for_each       = toset([for each_subnet in aws_subnet.private_subnet : each_subnet.id])
+  subnet_id      = each.key
+  route_table_id = aws_default_route_table.this.id
+}
+
+resource "aws_route_table_association" "public_subnet_association" {
+  for_each       = toset([for each_subnet in aws_subnet.public_subnet : each_subnet.id])
+  subnet_id      = each.value
+  route_table_id = aws_route_table.this.id
+}
+
+resource "aws_nat_gateway" "this" {
+  allocation_id = aws_eip.this.id
+  subnet_id     = element([for each_subnet in aws_subnet.public_subnet : each_subnet.id], 0)
+
+  tags = {
+    Name = "nat_gw_${var.vpc_name}"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.this]
+}
+
+resource "aws_eip" "this" {
+  domain = "vpc"
+}
