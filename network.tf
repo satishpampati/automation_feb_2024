@@ -5,7 +5,7 @@ resource "aws_vpc" "this" {
   enable_dns_support   = var.dns_support_enabled
 
   tags = {
-    Name = var.vpc_name
+    Name = local.vpc_name_local
   }
 }
 
@@ -60,13 +60,13 @@ resource "aws_internet_gateway" "this" {
 # route table association for private subnets
 
 resource "aws_route_table_association" "private_subnet_association" {
-  for_each       = toset([for each_subnet in aws_subnet.private_subnet : each_subnet.id])
-  subnet_id      = each.key
+  for_each       = { for index, each_subnet in aws_subnet.private_subnet : index => each_subnet.id }
+  subnet_id      = each.value
   route_table_id = aws_default_route_table.this.id
 }
 
 resource "aws_route_table_association" "public_subnet_association" {
-  for_each       = toset([for each_subnet in aws_subnet.public_subnet : each_subnet.id])
+  for_each       = { for index, each_subnet in aws_subnet.public_subnet : index => each_subnet.id }
   subnet_id      = each.value
   route_table_id = aws_route_table.this.id
 }
