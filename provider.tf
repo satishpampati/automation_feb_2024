@@ -5,7 +5,19 @@ terraform {
       source  = "hashicorp/aws"
       version = "5.37.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "3.2.2"
+    }
   }
+  backend "s3" {
+    bucket         = "terraformstatefilestorelab"
+    key            = "terraform-state-file-feb-24"
+    region         = "ap-south-1"
+    profile        = "terraform"
+    dynamodb_table = "terraformstatetable"
+  }
+
 }
 
 provider "aws" {
