@@ -1,16 +1,15 @@
 resource "aws_instance" "bastion" {
   ami           = "ami-0e670eb768a5fc3d4"
   instance_type = "t2.micro"
-  key_name      = "terraform-key"
+  key_name      = var.key_name
   subnet_id     = element([for each_subnet in aws_subnet.public_subnet : each_subnet.id], 0)
 
   tags = {
     Name = local.bastion_host
   }
-  provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no -i ~/Downloads/terraform-key.pem ~/Downloads/terraform-key.pem ec2-user@${self.public_ip}:~"
-
-  }
+  #provisioner "local-exec" {
+  #  command = "scp -o StrictHostKeyChecking=no -i ~/Downloads/terraform-key.pem ~/Downloads/terraform-key.pem ec2-user@${aws_instance.bastion.public_ip}:~"
+  #}
   vpc_security_group_ids = [aws_security_group.bastion_host.id]
 
 }

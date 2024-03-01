@@ -51,3 +51,8 @@ variable "inbound_rules_web" {
   }]
 
 }
+variable "key_name" {
+  type = string
+  description = "key pair name"
+  default = "deployer-key"
+}
