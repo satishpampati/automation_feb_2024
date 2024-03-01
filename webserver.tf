@@ -1,4 +1,4 @@
-resource "aws_instance" "this" {
+resource "aws_instance" "web" {
   ami           = "ami-0e670eb768a5fc3d4"
   instance_type = "t2.micro"
   key_name      = "terraform-key"
@@ -8,6 +8,7 @@ resource "aws_instance" "this" {
     Name = local.web_server
   }
   vpc_security_group_ids = [aws_security_group.this.id]
+  user_data              = file("${path.module}/user_data.sh")
 }
 
 resource "aws_security_group" "this" {
